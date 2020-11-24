@@ -1,0 +1,38 @@
+---
+- name: "Apache - Installation"
+  yum:
+    name:
+      - httpd
+      - php
+    state: present
+
+- name: "Apache - Copying Configuration File"
+  template:
+    src: httpd.conf.tmpl
+    dest: /etc/httpd/conf/httpd.conf    
+    
+- name: "Apache - Copying Virtualhost template"
+  template:
+    src: virtualhost.conf.tmpl
+    dest: "/etc/httpd/conf.d/{{ domain }}.conf"
+        
+- name: "Apache - Creading DocumentRoot"
+  file:
+    path: "/var/www/html/{{ domain }}"
+    state: directory
+       
+- name: "Apache - Creating test.html"
+  copy:
+    content: "<h1>Apache Demo Page</h1>"
+    dest: "/var/www/html/{{ domain }}/test.html"
+   
+- name: "Apache - Creating test.php"
+  copy:
+    content: "<?php phpinfo(); ?>"
+    dest: "/var/www/html/{{ domain }}/test.php" 
+   
+- name: "Apache - Restating"
+  service:
+    name: httpd
+    state: restarted
+    enabled: true
